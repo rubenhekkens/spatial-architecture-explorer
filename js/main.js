@@ -125,20 +125,86 @@
         fm.enableFeature(BABYLON.WebXRFeatureName.NEAR_INTERACTION, "latest", { xrInput: xr.input });
       } catch (e) { console.warn("Near interaction unavailable:", e.message); }
 
-      // teleport on the grid
+      // teleport on the grid (controllers with a thumbstick)
       try {
         if (App.Effects.grid) {
-          fm.enableFeature(BABYLON.WebXRFeatureName.TELEPORTATION, "stable", {
+          const tp = fm.enableFeature(BABYLON.WebXRFeatureName.TELEPORTATION, "stable", {
             xrInput: xr.input, floorMeshes: [App.Effects.grid],
+            defaultTargetMeshOptions: { teleportationFillColor: "#00e5ff", teleportationBorderColor: "#7fe9ff" },
           });
+          if (tp && tp.parabolicCheckRadius !== undefined) tp.parabolicRayEnabled = true;
         }
       } catch (e) { /* optional */ }
+
+      // hand-friendly locomotion: a wrist console with teleport-step buttons
+      setupLocomotion(xr, scene);
 
       hudStatus.textContent = "SYS · VR READY";
     } catch (e) {
       console.warn("XR init failed, continuing in desktop mode:", e);
       hudStatus.textContent = "SYS · DESKTOP MODE";
     }
+  }
+
+  // Hand-friendly locomotion. Builds a small console pinned in front of the
+  // user (always within reach) that teleports the rig closer / back along the
+  // gaze direction, plus a reset. Works with hand tracking and controllers.
+  function setupLocomotion(xr, scene) {
+    const cam = xr.baseExperience.camera;
+    const START = new BABYLON.Vector3(0, 0, 3.2);   // comfortable VR start spot
+    const STEP = 1.1;                               // metres per teleport press
+
+    // move the rig horizontally along where the user is looking
+    App.rigMove = (metres) => {
+      const f = cam.getDirection(BABYLON.Axis.Z);
+      f.y = 0;
+      if (f.lengthSquared() < 1e-4) return;
+      f.normalize();
+      cam.position.addInPlace(f.scale(metres));
+    };
+    App.rigReset = () => cam.position.copyFrom(START);
+
+    // --- wrist console (GUI plane parented to the head) ---
+    const plane = BABYLON.MeshBuilder.CreatePlane("vrnav", { width: 0.40, height: 0.16 }, scene);
+    plane.parent = cam;
+    plane.position = new BABYLON.Vector3(0, -0.34, 0.7); // low and in front
+    plane.rotation.x = BABYLON.Tools.ToRadians(38);
+    plane.isVisible = false;
+    plane.renderingGroupId = 1; // draw on top
+
+    const adt = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(plane, 760, 304, false);
+    const bg = new BABYLON.GUI.Rectangle();
+    bg.thickness = 2; bg.cornerRadius = 22; bg.color = "#1ea7c9"; bg.background = "#06131fdd";
+    adt.addControl(bg);
+    const title = new BABYLON.GUI.TextBlock();
+    title.text = "TELEPORT"; title.color = "#7fe9ff"; title.fontSize = 34;
+    title.top = "-110px"; title.shadowColor = "#00e5ff"; title.shadowBlur = 14;
+    bg.addControl(title);
+
+    const row = new BABYLON.GUI.StackPanel();
+    row.isVertical = false; row.height = "150px"; row.top = "22px";
+    bg.addControl(row);
+
+    const mkBtn = (label, color, fn) => {
+      const b = BABYLON.GUI.Button.CreateSimpleButton("b", label);
+      b.width = "220px"; b.height = "130px"; b.thickness = 2; b.cornerRadius = 16;
+      b.color = color; b.background = "#06131f"; b.paddingLeft = "10px"; b.paddingRight = "10px";
+      if (b.textBlock) { b.textBlock.color = color; b.textBlock.fontSize = 36; }
+      b.onPointerEnterObservable.add(() => { b.background = color; if (b.textBlock) b.textBlock.color = "#03121a"; });
+      b.onPointerOutObservable.add(() => { b.background = "#06131f"; if (b.textBlock) b.textBlock.color = color; });
+      b.onPointerUpObservable.add(fn);
+      row.addControl(b);
+      return b;
+    };
+    mkBtn("‹ BACK", "#7fe9ff", () => App.rigMove(-STEP));
+    mkBtn("RESET", "#ffd166", () => App.rigReset());
+    mkBtn("CLOSER ›", "#36f1cd", () => App.rigMove(STEP));
+
+    // show only while immersed; place the user well on entry
+    xr.baseExperience.onStateChangedObservable.add((state) => {
+      if (state === BABYLON.WebXRState.IN_XR) { App.rigReset(); plane.isVisible = true; }
+      else if (state === BABYLON.WebXRState.NOT_IN_XR) { plane.isVisible = false; }
+    });
   }
 
   // kick off after libraries are present
