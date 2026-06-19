@@ -28,8 +28,9 @@ Then open **http://localhost:8080**.
 Easiest: open the **live demo URL** above in the **Quest Browser** and tap
 **Enter VR** (bottom-right). WebXR needs https — the GitHub Pages URL provides it.
 
-Use **hand tracking** (pinch/poke the panels and blocks) or controllers. Point
-at panels to click; teleport on the grid floor.
+Use **hand tracking** (pinch/poke the panels and blocks) or controllers. A
+head-pinned console lets you **zoom and rotate** the whole interface (ZOOM ±,
+ROTATE ↺↻, RESET) so you can browse it from any distance/angle.
 
 Local alternative (no internet): run `serve-quest.cmd` for a self-signed-https
 LAN server, or use `adb reverse tcp:8080 tcp:8080` over USB and open

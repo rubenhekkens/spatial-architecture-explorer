@@ -64,18 +64,31 @@
     return plane;
   }
 
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
   App.Graph = {
     build(scene, app, opts = {}) {
       const cfg = App.Config;
       const center = opts.center || new V3(0, 0.6, 0);
       const scale = opts.scale || 1;
+      const schemeBase = opts.scheme ? BABYLON.Color3.FromHexString(opts.scheme) : null;
 
       const parent = new BABYLON.TransformNode("graph-" + app.id, scene);
       parent.position = center.clone();
       parent.scaling = new V3(scale, scale, scale);
+      if (opts.parentNode) parent.parent = opts.parentNode;
 
       const els = app.architecture.elements;
       const rels = app.architecture.relations;
+
+      // colour for an element: scheme tint (shaded by layer) or per-type colour
+      function elemHex(e) {
+        if (schemeBase) {
+          const order = LAYER[e.type] ?? 2;
+          return schemeBase.scale(0.62 + order * 0.13).toHexString();
+        }
+        return (cfg.elementTypes[e.type] || cfg.elementTypes.service).color;
+      }
 
       // ---- layout: group by layer, spread along x, depth by layer ----
       const byLayer = {};
@@ -96,23 +109,40 @@
         });
       });
 
+      // ---- merged "single shape" used at lowest detail (hidden by default) ----
+      const merged = BABYLON.MeshBuilder.CreateBox("merged-" + app.id, { size: 1.5 }, scene);
+      merged.parent = parent;
+      merged.position = new V3(0, 0.2, 0);
+      merged.material = holoMaterial(scene, schemeBase ? schemeBase.toHexString() : cfg.palette.primary.toHexString());
+      merged.visibility = 0;
+      merged.isPickable = false;
+      const mergedLabel = makeLabel(scene, app.name, app.architecture.elements.length + " elements",
+        schemeBase ? schemeBase.toHexString() : "#7fe9ff");
+      mergedLabel.parent = parent;
+      mergedLabel.position = new V3(0, 1.2, 0);
+      mergedLabel.visibility = 0;
+
       // ---- blocks ----
       const tooltip = makeTooltip(scene);
       els.forEach((e) => {
         const style = cfg.elementTypes[e.type] || cfg.elementTypes.service;
+        const hex = elemHex(e);
         const metricVal = firstNumber(e.metrics) || 100;
         const s = 0.55 + Math.min(0.5, Math.log10(metricVal + 10) / 10);
         const mesh = makeShape(scene, style.shape, "el-" + e.id, s);
         mesh.parent = parent;
         mesh.position = nodePos[e.id].clone();
-        mesh.material = holoMaterial(scene, style.color);
-        mesh.metadata = { element: e, baseY: nodePos[e.id].y, type: e.type };
+        mesh.material = holoMaterial(scene, hex);
+        mesh.metadata = {
+          element: e, type: e.type, hex, home: nodePos[e.id].clone(),
+          baseY: nodePos[e.id].y, labelOffsetY: s * 0.5 + 0.45, curScale: 1, selected: false,
+        };
         nodeMesh[e.id] = mesh;
 
         // label above
-        const lbl = makeLabel(scene, e.name, style.label, style.color);
+        const lbl = makeLabel(scene, e.name, style.label, hex);
         lbl.parent = parent;
-        lbl.position = nodePos[e.id].add(new V3(0, s * 0.5 + 0.45, 0));
+        lbl.position = nodePos[e.id].add(new V3(0, mesh.metadata.labelOffsetY, 0));
         lbl.scaling = new V3(0.9, 0.9, 0.9);
         mesh.metadata.label = lbl;
 
@@ -120,22 +150,28 @@
         mesh.actionManager = new BABYLON.ActionManager(scene);
         mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPointerOverTrigger, () => {
-            mesh.scaling = new V3(1.18, 1.18, 1.18);
+            mesh.scaling.setAll(mesh.metadata.curScale * 1.18);
             showTooltip(tooltip, e, style, mesh);
           }));
         mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPointerOutTrigger, () => {
-            mesh.scaling = V3.One();
+            mesh.scaling.setAll(mesh.metadata.curScale * (mesh.metadata.selected ? 1.2 : 1));
+            tooltip.mesh.setEnabled(false);
+          }));
+        mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger, () => {
+            if (opts.onSelect) opts.onSelect(e.id, e, mesh);
           }));
       });
 
       // ---- relations: glowing curved tubes + flowing packets ----
+      const relTubes = [];
       const packets = [];
       rels.forEach((r, ri) => {
         const a = nodePos[r.source], b = nodePos[r.target];
         if (!a || !b) return;
         const rstyle = cfg.relationTypes[r.type] || cfg.relationTypes.sync;
-        const col = BABYLON.Color3.FromHexString(rstyle.color);
+        const col = schemeBase ? schemeBase.scale(1.1) : BABYLON.Color3.FromHexString(rstyle.color);
         const mid = V3.Center(a, b).add(new V3(0, 0.6 + (ri % 3) * 0.25, 0));
         const curve = BABYLON.Curve3.CreateCatmullRomSpline([a, mid, b], 24);
         const pts = curve.getPoints();
@@ -152,6 +188,7 @@
         tube.material = tm;
         tube.isPickable = false;
         tube.metadata = { srcType: app.architecture.elements.find((x) => x.id === r.source)?.type };
+        relTubes.push(tube);
 
         // flowing packets
         const count = cfg.tunables.packetsPerRelation;
@@ -174,13 +211,15 @@
         // clamp delta so a stalled tab / first frame can't produce huge jumps
         const dt = Math.min(3, scene.getEngine().getDeltaTime() / 16.6);
         time += 0.02 * dt;
-        // gentle idle bob on blocks
-        els.forEach((e, i) => {
-          const m = nodeMesh[e.id];
-          if (!m || !m.isEnabled()) return;
-          m.position.y = m.metadata.baseY + Math.sin(time + i) * cfg.tunables.blockBob;
-          m.rotation.y += 0.002 * dt;
-        });
+        // gentle idle bob on blocks — only at (near) full detail, else setDetail owns positions
+        if (handle._detail > 0.985) {
+          els.forEach((e, i) => {
+            const m = nodeMesh[e.id];
+            if (!m || !m.isEnabled()) return;
+            m.position.y = m.metadata.home.y + Math.sin(time + i) * cfg.tunables.blockBob;
+            m.rotation.y += 0.002 * dt;
+          });
+        }
         // packets along curves
         packets.forEach((pk) => {
           if (!pk.mesh.isEnabled() || pk.pts.length < 2) return;
@@ -198,7 +237,9 @@
       });
 
       const handle = {
-        parent, nodeMesh, packets, tooltip,
+        parent, nodeMesh, packets, tooltip, app, elements: els,
+        _detail: 1,
+
         // dim blocks/packets whose type is not in the active set
         applyFilter(activeTypes) {
           els.forEach((e) => {
@@ -213,6 +254,55 @@
             pk.mesh.setEnabled(on);
           });
         },
+
+        // t = 1 full detail, t = 0 collapsed into one merged shape
+        setDetail(t) {
+          this._detail = t;
+          els.forEach((e) => {
+            const m = nodeMesh[e.id];
+            const home = m.metadata.home;
+            m.position.copyFrom(V3.Lerp(V3.Zero(), home, t));
+            const sc = 0.12 + 0.88 * t;
+            m.metadata.curScale = sc;
+            m.scaling.setAll(sc * (m.metadata.selected ? 1.2 : 1));
+            m.visibility = clamp01(t * 1.7);
+            m.isPickable = t > 0.4;
+            if (m.metadata.label) {
+              m.metadata.label.position.copyFrom(m.position.add(new V3(0, m.metadata.labelOffsetY * sc + 0.2, 0)));
+              m.metadata.label.visibility = clamp01((t - 0.45) / 0.55);
+            }
+          });
+          relTubes.forEach((tb) => (tb.visibility = clamp01((t - 0.35) / 0.65)));
+          packets.forEach((pk) => pk.mesh.setEnabled(t > 0.55));
+          merged.visibility = clamp01(1 - t * 1.5) * 0.85;
+          mergedLabel.visibility = clamp01(1 - t * 1.6);
+          if (t < 0.5) tooltip.mesh.setEnabled(false);
+        },
+
+        // selection highlight (outline + slight scale-up)
+        highlight(elementId, on, colorHex) {
+          const m = nodeMesh[elementId];
+          if (!m) return;
+          m.metadata.selected = on;
+          m.renderOutline = on;
+          if (on) {
+            m.outlineColor = BABYLON.Color3.FromHexString(colorHex || "#ffffff");
+            m.outlineWidth = 0.08;
+          }
+          m.scaling.setAll(m.metadata.curScale * (on ? 1.2 : 1));
+        },
+        clearHighlights(colorHex) {
+          els.forEach((e) => this.highlight(e.id, false));
+        },
+        worldPosOf(elementId) {
+          const m = nodeMesh[elementId];
+          return m ? m.getAbsolutePosition().clone() : null;
+        },
+        findByName(name) {
+          const n = (name || "").toLowerCase();
+          return els.find((e) => e.name.toLowerCase() === n);
+        },
+
         setEnabled(v) { parent.setEnabled(v); },
         dispose() {
           scene.onBeforeRenderObservable.remove(obs);

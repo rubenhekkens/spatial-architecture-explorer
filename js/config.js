@@ -41,6 +41,17 @@
       external: { shape: "sphere",   color: "#8aa0b5", icon: "◉", label: "External"  },
     },
 
+    // selectable color schemes for the 3D comparison (per-application tint)
+    schemes: {
+      cyan:    { name: "Cyan",    base: "#00e5ff" },
+      magenta: { name: "Magenta", base: "#ff2bd6" },
+      amber:   { name: "Amber",   base: "#ffb000" },
+      green:   { name: "Green",   base: "#36f1cd" },
+      violet:  { name: "Violet",  base: "#9b8cff" },
+      crimson: { name: "Crimson", base: "#ff4d6d" },
+    },
+    schemeOrder: ["cyan", "magenta", "amber", "green", "violet", "crimson"],
+
     // relation type -> connector styling
     relationTypes: {
       sync:  { color: "#00e5ff", dashed: false, label: "Sync"  },

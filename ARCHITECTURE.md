@@ -96,7 +96,8 @@ pages render by lookup, never by scanning.
 
 ### Page builders (`pages.js`)
 A simple state machine: `goLanding()`, `goSector(id)`, `goApplication(id)`,
-`goComparison(idA, idB)`. Each builder:
+`goComparePicker(appId)` (choose the 2nd app) and `goComparison(idA, idB, state)`.
+Each builder:
 1. tears down the previous stage + transient UI,
 2. populates left/middle/right per the Excel spec,
 3. animates content in (scale/fade/slide).
@@ -104,9 +105,14 @@ A simple state machine: `goLanding()`, `goSector(id)`, `goApplication(id)`,
 | Page | Left panel | Middle (stage) | Right panel |
 |------|-----------|----------------|-------------|
 | Landing | aggregate app stats tiles | sector blocks in an arc | — |
-| Sector | sectors list (buttons) | sector metric tiles | applications list (buttons) |
-| Application | app metric tiles | 3D architecture graph | (graph spans middle+right) + Compare button |
-| Comparison | app A graph + picker | — | app B graph + picker |
+| Sector | sectors list (buttons) | sector metric tiles + emblem | applications as **3D blocks** (clickable) |
+| Application | app metric tiles + Compare button | 3D architecture graph | (graph spans middle+right) |
+| Compare picker | App A summary + context graph | list of apps to pick App B | — |
+| Comparison | app A graph + metrics + swap | colour-scheme pickers + detail slider | app B graph + metrics + swap |
+
+The whole 3D stage (sector blocks, app blocks, graphs) is parented to a single
+`App.stage` transform so VR zoom/rotate can move it as one unit; the floating
+GUI panels stay fixed so controls remain reachable.
 
 ## 6. 3D architecture graph (`graph3d.js`)
 
@@ -119,9 +125,19 @@ A simple state machine: `goLanding()`, `goSector(id)`, `goApplication(id)`,
   tube; small emissive spheres ("data packets") animate along the curve to show
   direction and throughput; colour/dash by relation type.
 - **Interaction**: `ActionManager` (pointer over/out/pick) highlights a block
-  and shows its tooltip; works for mouse and XR pointer/hand alike.
+  and shows its tooltip; works for mouse and XR pointer/hand alike. A `onSelect`
+  callback drives the comparison link.
 - **Filters**: type/status filters set a dim factor on non-matching blocks and
   their relations.
+- **Colour schemes** (comparison): `opts.scheme` tints a whole graph with one
+  hue (shaded per layer) so each application is visually distinct; selectable
+  per app from `config.schemes`.
+- **Detail LOD** (comparison): `handle.setDetail(t)` lerps blocks between their
+  full layout (t=1) and a single merged shape at the centre (t=0), fading
+  labels/relations/packets — driven by the detail slider.
+- **Element linking** (comparison): selecting an element highlights it and the
+  same-named element in the other app (outline + scale) and draws a live world-
+  space line between them, updated each frame.
 
 ## 7. Floating 2D UI (`ui.js`)
 
@@ -137,7 +153,11 @@ A simple state machine: `goLanding()`, `goSector(id)`, `goApplication(id)`,
 
 - `scene.createDefaultXRExperienceAsync({ floorMeshes: [grid] })`.
 - Enable features when available: **hand tracking**, **pointer selection**,
-  **near interaction**, **teleportation** on the grid.
+  **near interaction**.
+- **Browsing** is by **zoom + rotate**, not teleport: a small head-pinned
+  console (built in `setupLocomotion`) has ZOOM ±, ROTATE ↺↻ and RESET buttons
+  that scale/rotate `App.stage` (the 3D content) so the user can inspect the
+  interface from any distance/angle without walking. Pinchable with hands.
 - Desktop fallback: `ArcRotateCamera` with mouse orbit/zoom; the same GUI is
   driven by the mouse pointer.
 - Capability detection (`navigator.xr.isSessionSupported`) toggles the Enter-VR
