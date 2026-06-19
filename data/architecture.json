@@ -1,0 +1,3426 @@
+{
+  "meta": {
+    "title": "Spatial Architecture Explorer",
+    "generatedAt": "2026-06-19T08:03:47.418226Z",
+    "elementTypes": [
+      "frontend",
+      "gateway",
+      "service",
+      "database",
+      "cache",
+      "queue",
+      "external"
+    ],
+    "relationTypes": [
+      "sync",
+      "async",
+      "data",
+      "auth"
+    ]
+  },
+  "sectors": [
+    {
+      "id": "sec-finance",
+      "name": "Finance",
+      "color": "#00e5ff",
+      "description": "Payments, ledgers and regulatory reporting.",
+      "applicationIds": [
+        "app-core-ledger",
+        "app-payments-hub",
+        "app-fraud-shield",
+        "app-reporting-engine"
+      ],
+      "metrics": {
+        "applications": 4,
+        "uptime": 99.75,
+        "monthlyCost": 695361,
+        "users": 264193,
+        "dataVolumeTB": 26.2,
+        "criticality": "Medium"
+      }
+    },
+    {
+      "id": "sec-logistics",
+      "name": "Logistics",
+      "color": "#36f1cd",
+      "description": "Warehousing, transport and last-mile delivery.",
+      "applicationIds": [
+        "app-route-optimizer",
+        "app-warehouse-os",
+        "app-track-&-trace",
+        "app-fleet-manager"
+      ],
+      "metrics": {
+        "applications": 4,
+        "uptime": 99.83,
+        "monthlyCost": 1043368,
+        "users": 103215,
+        "dataVolumeTB": 13.8,
+        "criticality": "High"
+      }
+    },
+    {
+      "id": "sec-customer",
+      "name": "Customer",
+      "color": "#ff2bd6",
+      "description": "CRM, support and customer engagement.",
+      "applicationIds": [
+        "app-crm-360",
+        "app-support-desk",
+        "app-loyalty-cloud"
+      ],
+      "metrics": {
+        "applications": 3,
+        "uptime": 99.96,
+        "monthlyCost": 949497,
+        "users": 98820,
+        "dataVolumeTB": 28.0,
+        "criticality": "High"
+      }
+    },
+    {
+      "id": "sec-manufacturing",
+      "name": "Manufacturing",
+      "color": "#ffd166",
+      "description": "Plant control, IoT telemetry and supply chain.",
+      "applicationIds": [
+        "app-plant-control",
+        "app-iot-telemetry",
+        "app-supply-planner"
+      ],
+      "metrics": {
+        "applications": 3,
+        "uptime": 99.95,
+        "monthlyCost": 823560,
+        "users": 105742,
+        "dataVolumeTB": 19.9,
+        "criticality": "Critical"
+      }
+    },
+    {
+      "id": "sec-platform",
+      "name": "Platform",
+      "color": "#9b8cff",
+      "description": "Shared identity, data and developer platform.",
+      "applicationIds": [
+        "app-identity-hub",
+        "app-data-lakehouse",
+        "app-devportal"
+      ],
+      "metrics": {
+        "applications": 3,
+        "uptime": 99.94,
+        "monthlyCost": 919310,
+        "users": 250770,
+        "dataVolumeTB": 27.4,
+        "criticality": "Critical"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "app-core-ledger",
+      "name": "Core Ledger",
+      "sectorId": "sec-finance",
+      "status": "healthy",
+      "owner": "M. Okoro",
+      "tech": [
+        "Python/FastAPI",
+        "Rust",
+        "AWS S3"
+      ],
+      "metrics": {
+        "uptime": 99.9,
+        "latencyMs": 160,
+        "rps": 2056,
+        "users": 29556,
+        "costPerMonth": 154316,
+        "incidents30d": 0,
+        "dataGB": 1081,
+        "apiCallsDay": 2049657
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-core-ledger-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Swift",
+            "metrics": {
+              "sessions": 634,
+              "p95ms": 141
+            }
+          },
+          {
+            "id": "app-core-ledger-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Envoy",
+            "metrics": {
+              "rps": 1798,
+              "p95ms": 36
+            }
+          },
+          {
+            "id": "app-core-ledger-svc0",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 460,
+              "p95ms": 91,
+              "errorRate": 0.26,
+              "instances": 14
+            }
+          },
+          {
+            "id": "app-core-ledger-svc1",
+            "name": "Notification Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 724,
+              "p95ms": 72,
+              "errorRate": 2.02,
+              "instances": 16
+            }
+          },
+          {
+            "id": "app-core-ledger-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 3990,
+              "p95ms": 25,
+              "connections": 50
+            }
+          },
+          {
+            "id": "app-core-ledger-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 3402,
+              "p95ms": 40,
+              "connections": 463
+            }
+          },
+          {
+            "id": "app-core-ledger-ext",
+            "name": "Email Provider",
+            "type": "external",
+            "tech": "Stripe",
+            "metrics": {
+              "p95ms": 131,
+              "availability": 98.57
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-core-ledger-fe",
+            "target": "app-core-ledger-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 653
+          },
+          {
+            "source": "app-core-ledger-gw",
+            "target": "app-core-ledger-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 387
+          },
+          {
+            "source": "app-core-ledger-gw",
+            "target": "app-core-ledger-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 147
+          },
+          {
+            "source": "app-core-ledger-svc0",
+            "target": "app-core-ledger-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 310
+          },
+          {
+            "source": "app-core-ledger-svc1",
+            "target": "app-core-ledger-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 601
+          },
+          {
+            "source": "app-core-ledger-svc1",
+            "target": "app-core-ledger-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 25
+          },
+          {
+            "source": "app-core-ledger-gw",
+            "target": "app-core-ledger-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 115
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-payments-hub",
+      "name": "Payments Hub",
+      "sectorId": "sec-finance",
+      "status": "healthy",
+      "owner": "S. Patel",
+      "tech": [
+        "Go",
+        "SAP",
+        "RabbitMQ"
+      ],
+      "metrics": {
+        "uptime": 99.93,
+        "latencyMs": 206,
+        "rps": 1382,
+        "users": 48820,
+        "costPerMonth": 380528,
+        "incidents30d": 0,
+        "dataGB": 5647,
+        "apiCallsDay": 35895520
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-payments-hub-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 4622,
+              "p95ms": 152
+            }
+          },
+          {
+            "id": "app-payments-hub-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "NGINX",
+            "metrics": {
+              "rps": 3532,
+              "p95ms": 15
+            }
+          },
+          {
+            "id": "app-payments-hub-svc0",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 1490,
+              "p95ms": 85,
+              "errorRate": 0.53,
+              "instances": 17
+            }
+          },
+          {
+            "id": "app-payments-hub-svc1",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 312,
+              "p95ms": 72,
+              "errorRate": 0.35,
+              "instances": 19
+            }
+          },
+          {
+            "id": "app-payments-hub-svc2",
+            "name": "Telemetry Ingest",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 1217,
+              "p95ms": 114,
+              "errorRate": 2.24,
+              "instances": 14
+            }
+          },
+          {
+            "id": "app-payments-hub-svc3",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 303,
+              "p95ms": 135,
+              "errorRate": 1.23,
+              "instances": 3
+            }
+          },
+          {
+            "id": "app-payments-hub-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Cassandra",
+            "metrics": {
+              "sizeGB": 2575,
+              "p95ms": 11,
+              "connections": 415
+            }
+          },
+          {
+            "id": "app-payments-hub-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Hazelcast",
+            "metrics": {
+              "sizeGB": 265,
+              "p95ms": 25,
+              "connections": 205
+            }
+          },
+          {
+            "id": "app-payments-hub-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "Kafka",
+            "metrics": {
+              "sizeGB": 2172,
+              "p95ms": 17,
+              "connections": 293
+            }
+          },
+          {
+            "id": "app-payments-hub-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 2957,
+              "p95ms": 8,
+              "connections": 359
+            }
+          },
+          {
+            "id": "app-payments-hub-ext",
+            "name": "Object Storage",
+            "type": "external",
+            "tech": "Salesforce",
+            "metrics": {
+              "p95ms": 408,
+              "availability": 98.67
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-payments-hub-fe",
+            "target": "app-payments-hub-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 891
+          },
+          {
+            "source": "app-payments-hub-gw",
+            "target": "app-payments-hub-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 489
+          },
+          {
+            "source": "app-payments-hub-gw",
+            "target": "app-payments-hub-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 289
+          },
+          {
+            "source": "app-payments-hub-gw",
+            "target": "app-payments-hub-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 244
+          },
+          {
+            "source": "app-payments-hub-gw",
+            "target": "app-payments-hub-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 176
+          },
+          {
+            "source": "app-payments-hub-svc0",
+            "target": "app-payments-hub-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 620
+          },
+          {
+            "source": "app-payments-hub-svc1",
+            "target": "app-payments-hub-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 489
+          },
+          {
+            "source": "app-payments-hub-svc2",
+            "target": "app-payments-hub-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 706
+          },
+          {
+            "source": "app-payments-hub-svc3",
+            "target": "app-payments-hub-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 778
+          },
+          {
+            "source": "app-payments-hub-svc1",
+            "target": "app-payments-hub-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 121
+          },
+          {
+            "source": "app-payments-hub-gw",
+            "target": "app-payments-hub-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 97
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-fraud-shield",
+      "name": "Fraud Shield",
+      "sectorId": "sec-finance",
+      "status": "warning",
+      "owner": "T. Bauer",
+      "tech": [
+        "React",
+        "Redis",
+        "Twilio"
+      ],
+      "metrics": {
+        "uptime": 99.21,
+        "latencyMs": 276,
+        "rps": 1513,
+        "users": 66842,
+        "costPerMonth": 119579,
+        "incidents30d": 3,
+        "dataGB": 12292,
+        "apiCallsDay": 10891372
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-fraud-shield-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 519,
+              "p95ms": 97
+            }
+          },
+          {
+            "id": "app-fraud-shield-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "NGINX",
+            "metrics": {
+              "rps": 3679,
+              "p95ms": 47
+            }
+          },
+          {
+            "id": "app-fraud-shield-svc0",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 1371,
+              "p95ms": 126,
+              "errorRate": 2.37,
+              "instances": 7
+            }
+          },
+          {
+            "id": "app-fraud-shield-svc1",
+            "name": "Notification Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1262,
+              "p95ms": 113,
+              "errorRate": 2.41,
+              "instances": 19
+            }
+          },
+          {
+            "id": "app-fraud-shield-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MongoDB",
+            "metrics": {
+              "sizeGB": 2925,
+              "p95ms": 20,
+              "connections": 214
+            }
+          },
+          {
+            "id": "app-fraud-shield-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Redis",
+            "metrics": {
+              "sizeGB": 3689,
+              "p95ms": 34,
+              "connections": 241
+            }
+          },
+          {
+            "id": "app-fraud-shield-ext",
+            "name": "Email Provider",
+            "type": "external",
+            "tech": "Twilio",
+            "metrics": {
+              "p95ms": 125,
+              "availability": 99.0
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-fraud-shield-fe",
+            "target": "app-fraud-shield-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 109
+          },
+          {
+            "source": "app-fraud-shield-gw",
+            "target": "app-fraud-shield-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 560
+          },
+          {
+            "source": "app-fraud-shield-gw",
+            "target": "app-fraud-shield-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 225
+          },
+          {
+            "source": "app-fraud-shield-svc0",
+            "target": "app-fraud-shield-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 458
+          },
+          {
+            "source": "app-fraud-shield-svc1",
+            "target": "app-fraud-shield-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 263
+          },
+          {
+            "source": "app-fraud-shield-svc0",
+            "target": "app-fraud-shield-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 155
+          },
+          {
+            "source": "app-fraud-shield-gw",
+            "target": "app-fraud-shield-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-reporting-engine",
+      "name": "Reporting Engine",
+      "sectorId": "sec-finance",
+      "status": "healthy",
+      "owner": "R. Hekkens",
+      "tech": [
+        "Python/FastAPI",
+        "Envoy",
+        "Salesforce"
+      ],
+      "metrics": {
+        "uptime": 99.96,
+        "latencyMs": 137,
+        "rps": 602,
+        "users": 118975,
+        "costPerMonth": 40938,
+        "incidents30d": 1,
+        "dataGB": 7838,
+        "apiCallsDay": 18738292
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-reporting-engine-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Flutter",
+            "metrics": {
+              "sessions": 4181,
+              "p95ms": 282
+            }
+          },
+          {
+            "id": "app-reporting-engine-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Kong",
+            "metrics": {
+              "rps": 859,
+              "p95ms": 20
+            }
+          },
+          {
+            "id": "app-reporting-engine-svc0",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 1358,
+              "p95ms": 30,
+              "errorRate": 0.15,
+              "instances": 12
+            }
+          },
+          {
+            "id": "app-reporting-engine-svc1",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 412,
+              "p95ms": 53,
+              "errorRate": 1.34,
+              "instances": 6
+            }
+          },
+          {
+            "id": "app-reporting-engine-svc2",
+            "name": "Telemetry Ingest",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 590,
+              "p95ms": 123,
+              "errorRate": 0.62,
+              "instances": 4
+            }
+          },
+          {
+            "id": "app-reporting-engine-svc3",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 220,
+              "p95ms": 17,
+              "errorRate": 1.63,
+              "instances": 19
+            }
+          },
+          {
+            "id": "app-reporting-engine-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Cassandra",
+            "metrics": {
+              "sizeGB": 3799,
+              "p95ms": 16,
+              "connections": 95
+            }
+          },
+          {
+            "id": "app-reporting-engine-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 1976,
+              "p95ms": 14,
+              "connections": 452
+            }
+          },
+          {
+            "id": "app-reporting-engine-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "Pub/Sub",
+            "metrics": {
+              "sizeGB": 679,
+              "p95ms": 25,
+              "connections": 11
+            }
+          },
+          {
+            "id": "app-reporting-engine-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Cassandra",
+            "metrics": {
+              "sizeGB": 3800,
+              "p95ms": 30,
+              "connections": 156
+            }
+          },
+          {
+            "id": "app-reporting-engine-ext",
+            "name": "Partner API",
+            "type": "external",
+            "tech": "Stripe",
+            "metrics": {
+              "p95ms": 218,
+              "availability": 98.78
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-reporting-engine-fe",
+            "target": "app-reporting-engine-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 724
+          },
+          {
+            "source": "app-reporting-engine-gw",
+            "target": "app-reporting-engine-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 274
+          },
+          {
+            "source": "app-reporting-engine-gw",
+            "target": "app-reporting-engine-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 207
+          },
+          {
+            "source": "app-reporting-engine-gw",
+            "target": "app-reporting-engine-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 583
+          },
+          {
+            "source": "app-reporting-engine-gw",
+            "target": "app-reporting-engine-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 115
+          },
+          {
+            "source": "app-reporting-engine-svc0",
+            "target": "app-reporting-engine-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 507
+          },
+          {
+            "source": "app-reporting-engine-svc1",
+            "target": "app-reporting-engine-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 70
+          },
+          {
+            "source": "app-reporting-engine-svc2",
+            "target": "app-reporting-engine-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 281
+          },
+          {
+            "source": "app-reporting-engine-svc3",
+            "target": "app-reporting-engine-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 723
+          },
+          {
+            "source": "app-reporting-engine-svc0",
+            "target": "app-reporting-engine-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 153
+          },
+          {
+            "source": "app-reporting-engine-gw",
+            "target": "app-reporting-engine-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 100
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-route-optimizer",
+      "name": "Route Optimizer",
+      "sectorId": "sec-logistics",
+      "status": "healthy",
+      "owner": "D. Haddad",
+      "tech": [
+        "Apigee",
+        "PostgreSQL",
+        "Vue"
+      ],
+      "metrics": {
+        "uptime": 99.95,
+        "latencyMs": 277,
+        "rps": 4400,
+        "users": 20935,
+        "costPerMonth": 67642,
+        "incidents30d": 0,
+        "dataGB": 2266,
+        "apiCallsDay": 15834266
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-route-optimizer-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Swift",
+            "metrics": {
+              "sessions": 1543,
+              "p95ms": 254
+            }
+          },
+          {
+            "id": "app-route-optimizer-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 2395,
+              "p95ms": 74
+            }
+          },
+          {
+            "id": "app-route-optimizer-svc0",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 1395,
+              "p95ms": 81,
+              "errorRate": 1.14,
+              "instances": 4
+            }
+          },
+          {
+            "id": "app-route-optimizer-svc1",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 1292,
+              "p95ms": 30,
+              "errorRate": 0.18,
+              "instances": 8
+            }
+          },
+          {
+            "id": "app-route-optimizer-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "PostgreSQL",
+            "metrics": {
+              "sizeGB": 547,
+              "p95ms": 23,
+              "connections": 461
+            }
+          },
+          {
+            "id": "app-route-optimizer-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 1518,
+              "p95ms": 19,
+              "connections": 90
+            }
+          },
+          {
+            "id": "app-route-optimizer-ext",
+            "name": "Object Storage",
+            "type": "external",
+            "tech": "Twilio",
+            "metrics": {
+              "p95ms": 68,
+              "availability": 99.5
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-route-optimizer-fe",
+            "target": "app-route-optimizer-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 317
+          },
+          {
+            "source": "app-route-optimizer-gw",
+            "target": "app-route-optimizer-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 489
+          },
+          {
+            "source": "app-route-optimizer-gw",
+            "target": "app-route-optimizer-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 291
+          },
+          {
+            "source": "app-route-optimizer-svc0",
+            "target": "app-route-optimizer-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 260
+          },
+          {
+            "source": "app-route-optimizer-svc1",
+            "target": "app-route-optimizer-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 566
+          },
+          {
+            "source": "app-route-optimizer-svc1",
+            "target": "app-route-optimizer-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 174
+          },
+          {
+            "source": "app-route-optimizer-gw",
+            "target": "app-route-optimizer-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 117
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-warehouse-os",
+      "name": "Warehouse OS",
+      "sectorId": "sec-logistics",
+      "status": "healthy",
+      "owner": "T. Bauer",
+      "tech": [
+        "Twilio",
+        "Oracle",
+        "Flutter"
+      ],
+      "metrics": {
+        "uptime": 99.91,
+        "latencyMs": 74,
+        "rps": 4582,
+        "users": 20674,
+        "costPerMonth": 293577,
+        "incidents30d": 1,
+        "dataGB": 6711,
+        "apiCallsDay": 17765659
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-warehouse-os-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 1712,
+              "p95ms": 256
+            }
+          },
+          {
+            "id": "app-warehouse-os-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 260,
+              "p95ms": 8
+            }
+          },
+          {
+            "id": "app-warehouse-os-svc0",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Go",
+            "metrics": {
+              "rps": 39,
+              "p95ms": 33,
+              "errorRate": 0.19,
+              "instances": 24
+            }
+          },
+          {
+            "id": "app-warehouse-os-svc1",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 93,
+              "p95ms": 99,
+              "errorRate": 1.46,
+              "instances": 6
+            }
+          },
+          {
+            "id": "app-warehouse-os-svc2",
+            "name": "Profile Service",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 105,
+              "p95ms": 83,
+              "errorRate": 0.91,
+              "instances": 3
+            }
+          },
+          {
+            "id": "app-warehouse-os-svc3",
+            "name": "Risk Engine",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 1416,
+              "p95ms": 68,
+              "errorRate": 1.67,
+              "instances": 13
+            }
+          },
+          {
+            "id": "app-warehouse-os-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 3993,
+              "p95ms": 40,
+              "connections": 393
+            }
+          },
+          {
+            "id": "app-warehouse-os-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Redis",
+            "metrics": {
+              "sizeGB": 3546,
+              "p95ms": 11,
+              "connections": 419
+            }
+          },
+          {
+            "id": "app-warehouse-os-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "SQS",
+            "metrics": {
+              "sizeGB": 106,
+              "p95ms": 12,
+              "connections": 387
+            }
+          },
+          {
+            "id": "app-warehouse-os-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 3290,
+              "p95ms": 16,
+              "connections": 146
+            }
+          },
+          {
+            "id": "app-warehouse-os-ext",
+            "name": "Payment Network",
+            "type": "external",
+            "tech": "Salesforce",
+            "metrics": {
+              "p95ms": 451,
+              "availability": 99.8
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-warehouse-os-fe",
+            "target": "app-warehouse-os-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 839
+          },
+          {
+            "source": "app-warehouse-os-gw",
+            "target": "app-warehouse-os-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 578
+          },
+          {
+            "source": "app-warehouse-os-gw",
+            "target": "app-warehouse-os-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 150
+          },
+          {
+            "source": "app-warehouse-os-gw",
+            "target": "app-warehouse-os-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 235
+          },
+          {
+            "source": "app-warehouse-os-gw",
+            "target": "app-warehouse-os-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 436
+          },
+          {
+            "source": "app-warehouse-os-svc0",
+            "target": "app-warehouse-os-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 252
+          },
+          {
+            "source": "app-warehouse-os-svc1",
+            "target": "app-warehouse-os-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 432
+          },
+          {
+            "source": "app-warehouse-os-svc2",
+            "target": "app-warehouse-os-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 431
+          },
+          {
+            "source": "app-warehouse-os-svc3",
+            "target": "app-warehouse-os-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 728
+          },
+          {
+            "source": "app-warehouse-os-svc1",
+            "target": "app-warehouse-os-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 56
+          },
+          {
+            "source": "app-warehouse-os-gw",
+            "target": "app-warehouse-os-svc3",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 49
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-track-&-trace",
+      "name": "Track & Trace",
+      "sectorId": "sec-logistics",
+      "status": "healthy",
+      "owner": "K. Larsen",
+      "tech": [
+        "AWS S3",
+        "SQS",
+        "Memcached"
+      ],
+      "metrics": {
+        "uptime": 99.97,
+        "latencyMs": 136,
+        "rps": 1876,
+        "users": 3401,
+        "costPerMonth": 210511,
+        "incidents30d": 1,
+        "dataGB": 2314,
+        "apiCallsDay": 18781761
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-track-&-trace-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 652,
+              "p95ms": 99
+            }
+          },
+          {
+            "id": "app-track-&-trace-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 811,
+              "p95ms": 82
+            }
+          },
+          {
+            "id": "app-track-&-trace-svc0",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 1200,
+              "p95ms": 53,
+              "errorRate": 0.64,
+              "instances": 24
+            }
+          },
+          {
+            "id": "app-track-&-trace-svc1",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1084,
+              "p95ms": 55,
+              "errorRate": 0.91,
+              "instances": 4
+            }
+          },
+          {
+            "id": "app-track-&-trace-svc2",
+            "name": "Telemetry Ingest",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1296,
+              "p95ms": 85,
+              "errorRate": 1.66,
+              "instances": 5
+            }
+          },
+          {
+            "id": "app-track-&-trace-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Cassandra",
+            "metrics": {
+              "sizeGB": 2082,
+              "p95ms": 20,
+              "connections": 351
+            }
+          },
+          {
+            "id": "app-track-&-trace-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Redis",
+            "metrics": {
+              "sizeGB": 1653,
+              "p95ms": 19,
+              "connections": 293
+            }
+          },
+          {
+            "id": "app-track-&-trace-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "RabbitMQ",
+            "metrics": {
+              "sizeGB": 1727,
+              "p95ms": 25,
+              "connections": 356
+            }
+          },
+          {
+            "id": "app-track-&-trace-ext",
+            "name": "Object Storage",
+            "type": "external",
+            "tech": "SWIFT",
+            "metrics": {
+              "p95ms": 475,
+              "availability": 99.32
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-track-&-trace-fe",
+            "target": "app-track-&-trace-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 89
+          },
+          {
+            "source": "app-track-&-trace-gw",
+            "target": "app-track-&-trace-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 21
+          },
+          {
+            "source": "app-track-&-trace-gw",
+            "target": "app-track-&-trace-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 358
+          },
+          {
+            "source": "app-track-&-trace-gw",
+            "target": "app-track-&-trace-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 327
+          },
+          {
+            "source": "app-track-&-trace-svc0",
+            "target": "app-track-&-trace-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 344
+          },
+          {
+            "source": "app-track-&-trace-svc1",
+            "target": "app-track-&-trace-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 206
+          },
+          {
+            "source": "app-track-&-trace-svc2",
+            "target": "app-track-&-trace-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 640
+          },
+          {
+            "source": "app-track-&-trace-svc1",
+            "target": "app-track-&-trace-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 78
+          },
+          {
+            "source": "app-track-&-trace-gw",
+            "target": "app-track-&-trace-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 60
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-fleet-manager",
+      "name": "Fleet Manager",
+      "sectorId": "sec-logistics",
+      "status": "warning",
+      "owner": "T. Bauer",
+      "tech": [
+        "Memcached",
+        "Kong",
+        "PostgreSQL"
+      ],
+      "metrics": {
+        "uptime": 99.49,
+        "latencyMs": 184,
+        "rps": 3859,
+        "users": 58205,
+        "costPerMonth": 471638,
+        "incidents30d": 5,
+        "dataGB": 2818,
+        "apiCallsDay": 19094583
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-fleet-manager-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Angular",
+            "metrics": {
+              "sessions": 5285,
+              "p95ms": 155
+            }
+          },
+          {
+            "id": "app-fleet-manager-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Kong",
+            "metrics": {
+              "rps": 683,
+              "p95ms": 11
+            }
+          },
+          {
+            "id": "app-fleet-manager-svc0",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": "Go",
+            "metrics": {
+              "rps": 1446,
+              "p95ms": 103,
+              "errorRate": 1.24,
+              "instances": 9
+            }
+          },
+          {
+            "id": "app-fleet-manager-svc1",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 238,
+              "p95ms": 113,
+              "errorRate": 0.55,
+              "instances": 24
+            }
+          },
+          {
+            "id": "app-fleet-manager-svc2",
+            "name": "Notification Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 122,
+              "p95ms": 68,
+              "errorRate": 2.29,
+              "instances": 5
+            }
+          },
+          {
+            "id": "app-fleet-manager-svc3",
+            "name": "Profile Service",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 971,
+              "p95ms": 140,
+              "errorRate": 2.47,
+              "instances": 21
+            }
+          },
+          {
+            "id": "app-fleet-manager-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 2514,
+              "p95ms": 33,
+              "connections": 228
+            }
+          },
+          {
+            "id": "app-fleet-manager-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 3679,
+              "p95ms": 11,
+              "connections": 390
+            }
+          },
+          {
+            "id": "app-fleet-manager-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "SQS",
+            "metrics": {
+              "sizeGB": 1066,
+              "p95ms": 16,
+              "connections": 440
+            }
+          },
+          {
+            "id": "app-fleet-manager-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 3190,
+              "p95ms": 34,
+              "connections": 258
+            }
+          },
+          {
+            "id": "app-fleet-manager-ext",
+            "name": "Partner API",
+            "type": "external",
+            "tech": "Stripe",
+            "metrics": {
+              "p95ms": 139,
+              "availability": 99.56
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-fleet-manager-fe",
+            "target": "app-fleet-manager-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 300
+          },
+          {
+            "source": "app-fleet-manager-gw",
+            "target": "app-fleet-manager-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 25
+          },
+          {
+            "source": "app-fleet-manager-gw",
+            "target": "app-fleet-manager-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 495
+          },
+          {
+            "source": "app-fleet-manager-gw",
+            "target": "app-fleet-manager-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 156
+          },
+          {
+            "source": "app-fleet-manager-gw",
+            "target": "app-fleet-manager-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 473
+          },
+          {
+            "source": "app-fleet-manager-svc0",
+            "target": "app-fleet-manager-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 466
+          },
+          {
+            "source": "app-fleet-manager-svc1",
+            "target": "app-fleet-manager-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 470
+          },
+          {
+            "source": "app-fleet-manager-svc2",
+            "target": "app-fleet-manager-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 794
+          },
+          {
+            "source": "app-fleet-manager-svc3",
+            "target": "app-fleet-manager-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 291
+          },
+          {
+            "source": "app-fleet-manager-svc2",
+            "target": "app-fleet-manager-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 90
+          },
+          {
+            "source": "app-fleet-manager-gw",
+            "target": "app-fleet-manager-svc2",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 119
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-crm-360",
+      "name": "CRM 360",
+      "sectorId": "sec-customer",
+      "status": "healthy",
+      "owner": "A. Vance",
+      "tech": [
+        "Python/FastAPI",
+        "Pub/Sub",
+        "RabbitMQ"
+      ],
+      "metrics": {
+        "uptime": 99.92,
+        "latencyMs": 98,
+        "rps": 1802,
+        "users": 8718,
+        "costPerMonth": 443020,
+        "incidents30d": 1,
+        "dataGB": 15307,
+        "apiCallsDay": 27952136
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-crm-360-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Flutter",
+            "metrics": {
+              "sessions": 520,
+              "p95ms": 234
+            }
+          },
+          {
+            "id": "app-crm-360-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 104,
+              "p95ms": 53
+            }
+          },
+          {
+            "id": "app-crm-360-svc0",
+            "name": "Notification Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 912,
+              "p95ms": 129,
+              "errorRate": 0.07,
+              "instances": 12
+            }
+          },
+          {
+            "id": "app-crm-360-svc1",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 358,
+              "p95ms": 124,
+              "errorRate": 2.3,
+              "instances": 21
+            }
+          },
+          {
+            "id": "app-crm-360-svc2",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Go",
+            "metrics": {
+              "rps": 826,
+              "p95ms": 11,
+              "errorRate": 0.21,
+              "instances": 15
+            }
+          },
+          {
+            "id": "app-crm-360-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Cassandra",
+            "metrics": {
+              "sizeGB": 749,
+              "p95ms": 4,
+              "connections": 143
+            }
+          },
+          {
+            "id": "app-crm-360-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 871,
+              "p95ms": 30,
+              "connections": 177
+            }
+          },
+          {
+            "id": "app-crm-360-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "Pub/Sub",
+            "metrics": {
+              "sizeGB": 3608,
+              "p95ms": 25,
+              "connections": 152
+            }
+          },
+          {
+            "id": "app-crm-360-ext",
+            "name": "Payment Network",
+            "type": "external",
+            "tech": "Twilio",
+            "metrics": {
+              "p95ms": 541,
+              "availability": 98.53
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-crm-360-fe",
+            "target": "app-crm-360-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 821
+          },
+          {
+            "source": "app-crm-360-gw",
+            "target": "app-crm-360-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 434
+          },
+          {
+            "source": "app-crm-360-gw",
+            "target": "app-crm-360-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 47
+          },
+          {
+            "source": "app-crm-360-gw",
+            "target": "app-crm-360-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 492
+          },
+          {
+            "source": "app-crm-360-svc0",
+            "target": "app-crm-360-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 345
+          },
+          {
+            "source": "app-crm-360-svc1",
+            "target": "app-crm-360-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 789
+          },
+          {
+            "source": "app-crm-360-svc2",
+            "target": "app-crm-360-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 268
+          },
+          {
+            "source": "app-crm-360-svc0",
+            "target": "app-crm-360-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 94
+          },
+          {
+            "source": "app-crm-360-gw",
+            "target": "app-crm-360-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 88
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-support-desk",
+      "name": "Support Desk",
+      "sectorId": "sec-customer",
+      "status": "healthy",
+      "owner": "M. Okoro",
+      "tech": [
+        "Python/FastAPI",
+        "SAP",
+        "Oracle"
+      ],
+      "metrics": {
+        "uptime": 99.99,
+        "latencyMs": 40,
+        "rps": 304,
+        "users": 32711,
+        "costPerMonth": 217044,
+        "incidents30d": 0,
+        "dataGB": 4176,
+        "apiCallsDay": 31830144
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-support-desk-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Swift",
+            "metrics": {
+              "sessions": 6243,
+              "p95ms": 125
+            }
+          },
+          {
+            "id": "app-support-desk-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "NGINX",
+            "metrics": {
+              "rps": 2567,
+              "p95ms": 22
+            }
+          },
+          {
+            "id": "app-support-desk-svc0",
+            "name": "Profile Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1232,
+              "p95ms": 67,
+              "errorRate": 0.25,
+              "instances": 11
+            }
+          },
+          {
+            "id": "app-support-desk-svc1",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1179,
+              "p95ms": 15,
+              "errorRate": 0.87,
+              "instances": 15
+            }
+          },
+          {
+            "id": "app-support-desk-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MongoDB",
+            "metrics": {
+              "sizeGB": 287,
+              "p95ms": 33,
+              "connections": 341
+            }
+          },
+          {
+            "id": "app-support-desk-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 3484,
+              "p95ms": 27,
+              "connections": 431
+            }
+          },
+          {
+            "id": "app-support-desk-ext",
+            "name": "Partner API",
+            "type": "external",
+            "tech": "Salesforce",
+            "metrics": {
+              "p95ms": 430,
+              "availability": 99.45
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-support-desk-fe",
+            "target": "app-support-desk-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 368
+          },
+          {
+            "source": "app-support-desk-gw",
+            "target": "app-support-desk-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 143
+          },
+          {
+            "source": "app-support-desk-gw",
+            "target": "app-support-desk-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 399
+          },
+          {
+            "source": "app-support-desk-svc0",
+            "target": "app-support-desk-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 22
+          },
+          {
+            "source": "app-support-desk-svc1",
+            "target": "app-support-desk-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 118
+          },
+          {
+            "source": "app-support-desk-svc0",
+            "target": "app-support-desk-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 116
+          },
+          {
+            "source": "app-support-desk-gw",
+            "target": "app-support-desk-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 98
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-loyalty-cloud",
+      "name": "Loyalty Cloud",
+      "sectorId": "sec-customer",
+      "status": "healthy",
+      "owner": "S. Patel",
+      "tech": [
+        "SAP",
+        "RabbitMQ",
+        "Memcached"
+      ],
+      "metrics": {
+        "uptime": 99.96,
+        "latencyMs": 267,
+        "rps": 3858,
+        "users": 57391,
+        "costPerMonth": 289433,
+        "incidents30d": 1,
+        "dataGB": 9179,
+        "apiCallsDay": 30302810
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-loyalty-cloud-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 670,
+              "p95ms": 293
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "NGINX",
+            "metrics": {
+              "rps": 824,
+              "p95ms": 70
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-svc0",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 411,
+              "p95ms": 26,
+              "errorRate": 0.6,
+              "instances": 15
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-svc1",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 512,
+              "p95ms": 126,
+              "errorRate": 1.61,
+              "instances": 17
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-svc2",
+            "name": "Risk Engine",
+            "type": "service",
+            "tech": "Go",
+            "metrics": {
+              "rps": 210,
+              "p95ms": 80,
+              "errorRate": 0.55,
+              "instances": 24
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-svc3",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 1379,
+              "p95ms": 99,
+              "errorRate": 1.18,
+              "instances": 18
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MongoDB",
+            "metrics": {
+              "sizeGB": 3060,
+              "p95ms": 36,
+              "connections": 179
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 1863,
+              "p95ms": 18,
+              "connections": 166
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "Kafka",
+            "metrics": {
+              "sizeGB": 499,
+              "p95ms": 13,
+              "connections": 171
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 2199,
+              "p95ms": 12,
+              "connections": 108
+            }
+          },
+          {
+            "id": "app-loyalty-cloud-ext",
+            "name": "Partner API",
+            "type": "external",
+            "tech": "Twilio",
+            "metrics": {
+              "p95ms": 343,
+              "availability": 99.58
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-loyalty-cloud-fe",
+            "target": "app-loyalty-cloud-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 413
+          },
+          {
+            "source": "app-loyalty-cloud-gw",
+            "target": "app-loyalty-cloud-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 588
+          },
+          {
+            "source": "app-loyalty-cloud-gw",
+            "target": "app-loyalty-cloud-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 37
+          },
+          {
+            "source": "app-loyalty-cloud-gw",
+            "target": "app-loyalty-cloud-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 333
+          },
+          {
+            "source": "app-loyalty-cloud-gw",
+            "target": "app-loyalty-cloud-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 455
+          },
+          {
+            "source": "app-loyalty-cloud-svc0",
+            "target": "app-loyalty-cloud-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 729
+          },
+          {
+            "source": "app-loyalty-cloud-svc1",
+            "target": "app-loyalty-cloud-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 246
+          },
+          {
+            "source": "app-loyalty-cloud-svc2",
+            "target": "app-loyalty-cloud-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 770
+          },
+          {
+            "source": "app-loyalty-cloud-svc3",
+            "target": "app-loyalty-cloud-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 766
+          },
+          {
+            "source": "app-loyalty-cloud-svc2",
+            "target": "app-loyalty-cloud-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 30
+          },
+          {
+            "source": "app-loyalty-cloud-gw",
+            "target": "app-loyalty-cloud-svc1",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 42
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-plant-control",
+      "name": "Plant Control",
+      "sectorId": "sec-manufacturing",
+      "status": "healthy",
+      "owner": "J. Romero",
+      "tech": [
+        "Salesforce",
+        "Stripe",
+        "Memcached"
+      ],
+      "metrics": {
+        "uptime": 99.93,
+        "latencyMs": 84,
+        "rps": 2297,
+        "users": 6265,
+        "costPerMonth": 65174,
+        "incidents30d": 1,
+        "dataGB": 3401,
+        "apiCallsDay": 873117
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-plant-control-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 3220,
+              "p95ms": 66
+            }
+          },
+          {
+            "id": "app-plant-control-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Kong",
+            "metrics": {
+              "rps": 3934,
+              "p95ms": 69
+            }
+          },
+          {
+            "id": "app-plant-control-svc0",
+            "name": "Telemetry Ingest",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 642,
+              "p95ms": 26,
+              "errorRate": 2.48,
+              "instances": 5
+            }
+          },
+          {
+            "id": "app-plant-control-svc1",
+            "name": "Notification Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 1261,
+              "p95ms": 62,
+              "errorRate": 1.94,
+              "instances": 14
+            }
+          },
+          {
+            "id": "app-plant-control-svc2",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 628,
+              "p95ms": 114,
+              "errorRate": 0.76,
+              "instances": 21
+            }
+          },
+          {
+            "id": "app-plant-control-svc3",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Go",
+            "metrics": {
+              "rps": 445,
+              "p95ms": 59,
+              "errorRate": 0.66,
+              "instances": 4
+            }
+          },
+          {
+            "id": "app-plant-control-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 716,
+              "p95ms": 36,
+              "connections": 48
+            }
+          },
+          {
+            "id": "app-plant-control-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Hazelcast",
+            "metrics": {
+              "sizeGB": 1678,
+              "p95ms": 29,
+              "connections": 362
+            }
+          },
+          {
+            "id": "app-plant-control-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "SQS",
+            "metrics": {
+              "sizeGB": 1197,
+              "p95ms": 3,
+              "connections": 128
+            }
+          },
+          {
+            "id": "app-plant-control-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 1163,
+              "p95ms": 30,
+              "connections": 46
+            }
+          },
+          {
+            "id": "app-plant-control-ext",
+            "name": "Email Provider",
+            "type": "external",
+            "tech": "Stripe",
+            "metrics": {
+              "p95ms": 495,
+              "availability": 98.67
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-plant-control-fe",
+            "target": "app-plant-control-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 891
+          },
+          {
+            "source": "app-plant-control-gw",
+            "target": "app-plant-control-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 446
+          },
+          {
+            "source": "app-plant-control-gw",
+            "target": "app-plant-control-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 473
+          },
+          {
+            "source": "app-plant-control-gw",
+            "target": "app-plant-control-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 121
+          },
+          {
+            "source": "app-plant-control-gw",
+            "target": "app-plant-control-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 265
+          },
+          {
+            "source": "app-plant-control-svc0",
+            "target": "app-plant-control-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 12
+          },
+          {
+            "source": "app-plant-control-svc1",
+            "target": "app-plant-control-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 491
+          },
+          {
+            "source": "app-plant-control-svc2",
+            "target": "app-plant-control-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 733
+          },
+          {
+            "source": "app-plant-control-svc3",
+            "target": "app-plant-control-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 280
+          },
+          {
+            "source": "app-plant-control-svc1",
+            "target": "app-plant-control-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 73
+          },
+          {
+            "source": "app-plant-control-gw",
+            "target": "app-plant-control-svc1",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 14
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-iot-telemetry",
+      "name": "IoT Telemetry",
+      "sectorId": "sec-manufacturing",
+      "status": "healthy",
+      "owner": "R. Hekkens",
+      "tech": [
+        "Stripe",
+        "Kong",
+        "Vue"
+      ],
+      "metrics": {
+        "uptime": 99.97,
+        "latencyMs": 167,
+        "rps": 3647,
+        "users": 16599,
+        "costPerMonth": 499465,
+        "incidents30d": 1,
+        "dataGB": 16439,
+        "apiCallsDay": 36287549
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-iot-telemetry-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Swift",
+            "metrics": {
+              "sessions": 7278,
+              "p95ms": 205
+            }
+          },
+          {
+            "id": "app-iot-telemetry-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Kong",
+            "metrics": {
+              "rps": 1105,
+              "p95ms": 11
+            }
+          },
+          {
+            "id": "app-iot-telemetry-svc0",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 1354,
+              "p95ms": 118,
+              "errorRate": 2.29,
+              "instances": 7
+            }
+          },
+          {
+            "id": "app-iot-telemetry-svc1",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 1320,
+              "p95ms": 130,
+              "errorRate": 2.42,
+              "instances": 17
+            }
+          },
+          {
+            "id": "app-iot-telemetry-svc2",
+            "name": "Risk Engine",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 702,
+              "p95ms": 87,
+              "errorRate": 1.68,
+              "instances": 7
+            }
+          },
+          {
+            "id": "app-iot-telemetry-svc3",
+            "name": "Telemetry Ingest",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 1440,
+              "p95ms": 131,
+              "errorRate": 0.72,
+              "instances": 14
+            }
+          },
+          {
+            "id": "app-iot-telemetry-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MongoDB",
+            "metrics": {
+              "sizeGB": 1867,
+              "p95ms": 6,
+              "connections": 171
+            }
+          },
+          {
+            "id": "app-iot-telemetry-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Hazelcast",
+            "metrics": {
+              "sizeGB": 479,
+              "p95ms": 26,
+              "connections": 452
+            }
+          },
+          {
+            "id": "app-iot-telemetry-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "Pub/Sub",
+            "metrics": {
+              "sizeGB": 2698,
+              "p95ms": 35,
+              "connections": 246
+            }
+          },
+          {
+            "id": "app-iot-telemetry-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 773,
+              "p95ms": 34,
+              "connections": 195
+            }
+          },
+          {
+            "id": "app-iot-telemetry-ext",
+            "name": "Partner API",
+            "type": "external",
+            "tech": "Stripe",
+            "metrics": {
+              "p95ms": 512,
+              "availability": 99.63
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-iot-telemetry-fe",
+            "target": "app-iot-telemetry-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 284
+          },
+          {
+            "source": "app-iot-telemetry-gw",
+            "target": "app-iot-telemetry-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 466
+          },
+          {
+            "source": "app-iot-telemetry-gw",
+            "target": "app-iot-telemetry-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 438
+          },
+          {
+            "source": "app-iot-telemetry-gw",
+            "target": "app-iot-telemetry-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 441
+          },
+          {
+            "source": "app-iot-telemetry-gw",
+            "target": "app-iot-telemetry-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 57
+          },
+          {
+            "source": "app-iot-telemetry-svc0",
+            "target": "app-iot-telemetry-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 341
+          },
+          {
+            "source": "app-iot-telemetry-svc1",
+            "target": "app-iot-telemetry-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 11
+          },
+          {
+            "source": "app-iot-telemetry-svc2",
+            "target": "app-iot-telemetry-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 65
+          },
+          {
+            "source": "app-iot-telemetry-svc3",
+            "target": "app-iot-telemetry-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 784
+          },
+          {
+            "source": "app-iot-telemetry-svc2",
+            "target": "app-iot-telemetry-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 145
+          },
+          {
+            "source": "app-iot-telemetry-gw",
+            "target": "app-iot-telemetry-svc1",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 41
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-supply-planner",
+      "name": "Supply Planner",
+      "sectorId": "sec-manufacturing",
+      "status": "healthy",
+      "owner": "D. Haddad",
+      "tech": [
+        "Kong",
+        "Rust",
+        "Apigee"
+      ],
+      "metrics": {
+        "uptime": 99.96,
+        "latencyMs": 82,
+        "rps": 286,
+        "users": 82878,
+        "costPerMonth": 258921,
+        "incidents30d": 0,
+        "dataGB": 488,
+        "apiCallsDay": 37110964
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-supply-planner-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Angular",
+            "metrics": {
+              "sessions": 7760,
+              "p95ms": 100
+            }
+          },
+          {
+            "id": "app-supply-planner-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 2121,
+              "p95ms": 45
+            }
+          },
+          {
+            "id": "app-supply-planner-svc0",
+            "name": "Notification Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 1060,
+              "p95ms": 39,
+              "errorRate": 2.16,
+              "instances": 10
+            }
+          },
+          {
+            "id": "app-supply-planner-svc1",
+            "name": "Account Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1059,
+              "p95ms": 73,
+              "errorRate": 2.05,
+              "instances": 11
+            }
+          },
+          {
+            "id": "app-supply-planner-svc2",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 1222,
+              "p95ms": 130,
+              "errorRate": 2.16,
+              "instances": 16
+            }
+          },
+          {
+            "id": "app-supply-planner-svc3",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Node.js",
+            "metrics": {
+              "rps": 726,
+              "p95ms": 90,
+              "errorRate": 1.38,
+              "instances": 19
+            }
+          },
+          {
+            "id": "app-supply-planner-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 3825,
+              "p95ms": 21,
+              "connections": 455
+            }
+          },
+          {
+            "id": "app-supply-planner-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Redis",
+            "metrics": {
+              "sizeGB": 983,
+              "p95ms": 37,
+              "connections": 206
+            }
+          },
+          {
+            "id": "app-supply-planner-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "Pub/Sub",
+            "metrics": {
+              "sizeGB": 183,
+              "p95ms": 21,
+              "connections": 391
+            }
+          },
+          {
+            "id": "app-supply-planner-st3",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "Oracle",
+            "metrics": {
+              "sizeGB": 3746,
+              "p95ms": 25,
+              "connections": 207
+            }
+          },
+          {
+            "id": "app-supply-planner-ext",
+            "name": "Payment Network",
+            "type": "external",
+            "tech": "Twilio",
+            "metrics": {
+              "p95ms": 189,
+              "availability": 99.25
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-supply-planner-fe",
+            "target": "app-supply-planner-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 475
+          },
+          {
+            "source": "app-supply-planner-gw",
+            "target": "app-supply-planner-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 368
+          },
+          {
+            "source": "app-supply-planner-gw",
+            "target": "app-supply-planner-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 325
+          },
+          {
+            "source": "app-supply-planner-gw",
+            "target": "app-supply-planner-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 515
+          },
+          {
+            "source": "app-supply-planner-gw",
+            "target": "app-supply-planner-svc3",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 486
+          },
+          {
+            "source": "app-supply-planner-svc0",
+            "target": "app-supply-planner-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 724
+          },
+          {
+            "source": "app-supply-planner-svc1",
+            "target": "app-supply-planner-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 430
+          },
+          {
+            "source": "app-supply-planner-svc2",
+            "target": "app-supply-planner-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 732
+          },
+          {
+            "source": "app-supply-planner-svc3",
+            "target": "app-supply-planner-st3",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 517
+          },
+          {
+            "source": "app-supply-planner-svc2",
+            "target": "app-supply-planner-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 30
+          },
+          {
+            "source": "app-supply-planner-gw",
+            "target": "app-supply-planner-svc3",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 17
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-identity-hub",
+      "name": "Identity Hub",
+      "sectorId": "sec-platform",
+      "status": "healthy",
+      "owner": "D. Haddad",
+      "tech": [
+        "Redis",
+        "Twilio",
+        "Vue"
+      ],
+      "metrics": {
+        "uptime": 99.91,
+        "latencyMs": 99,
+        "rps": 662,
+        "users": 61837,
+        "costPerMonth": 285896,
+        "incidents30d": 1,
+        "dataGB": 10806,
+        "apiCallsDay": 35860787
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-identity-hub-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Vue",
+            "metrics": {
+              "sessions": 1321,
+              "p95ms": 160
+            }
+          },
+          {
+            "id": "app-identity-hub-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Envoy",
+            "metrics": {
+              "rps": 1011,
+              "p95ms": 19
+            }
+          },
+          {
+            "id": "app-identity-hub-svc0",
+            "name": "Inventory Service",
+            "type": "service",
+            "tech": "Go",
+            "metrics": {
+              "rps": 620,
+              "p95ms": 96,
+              "errorRate": 0.94,
+              "instances": 6
+            }
+          },
+          {
+            "id": "app-identity-hub-svc1",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Python/FastAPI",
+            "metrics": {
+              "rps": 863,
+              "p95ms": 51,
+              "errorRate": 0.42,
+              "instances": 4
+            }
+          },
+          {
+            "id": "app-identity-hub-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 2543,
+              "p95ms": 16,
+              "connections": 264
+            }
+          },
+          {
+            "id": "app-identity-hub-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 956,
+              "p95ms": 30,
+              "connections": 336
+            }
+          },
+          {
+            "id": "app-identity-hub-ext",
+            "name": "Object Storage",
+            "type": "external",
+            "tech": "Salesforce",
+            "metrics": {
+              "p95ms": 69,
+              "availability": 99.84
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-identity-hub-fe",
+            "target": "app-identity-hub-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 150
+          },
+          {
+            "source": "app-identity-hub-gw",
+            "target": "app-identity-hub-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 563
+          },
+          {
+            "source": "app-identity-hub-gw",
+            "target": "app-identity-hub-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 411
+          },
+          {
+            "source": "app-identity-hub-svc0",
+            "target": "app-identity-hub-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 156
+          },
+          {
+            "source": "app-identity-hub-svc1",
+            "target": "app-identity-hub-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 480
+          },
+          {
+            "source": "app-identity-hub-svc1",
+            "target": "app-identity-hub-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 178
+          },
+          {
+            "source": "app-identity-hub-gw",
+            "target": "app-identity-hub-svc0",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 14
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-data-lakehouse",
+      "name": "Data Lakehouse",
+      "sectorId": "sec-platform",
+      "status": "healthy",
+      "owner": "M. Okoro",
+      "tech": [
+        "PostgreSQL",
+        "RabbitMQ",
+        "Hazelcast"
+      ],
+      "metrics": {
+        "uptime": 99.93,
+        "latencyMs": 173,
+        "rps": 3525,
+        "users": 90780,
+        "costPerMonth": 270246,
+        "incidents30d": 1,
+        "dataGB": 12645,
+        "apiCallsDay": 32477544
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-data-lakehouse-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "React",
+            "metrics": {
+              "sessions": 5047,
+              "p95ms": 191
+            }
+          },
+          {
+            "id": "app-data-lakehouse-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 3479,
+              "p95ms": 58
+            }
+          },
+          {
+            "id": "app-data-lakehouse-svc0",
+            "name": "Profile Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1323,
+              "p95ms": 53,
+              "errorRate": 1.55,
+              "instances": 23
+            }
+          },
+          {
+            "id": "app-data-lakehouse-svc1",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": "Java/Spring",
+            "metrics": {
+              "rps": 1306,
+              "p95ms": 29,
+              "errorRate": 2.26,
+              "instances": 22
+            }
+          },
+          {
+            "id": "app-data-lakehouse-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 3235,
+              "p95ms": 29,
+              "connections": 27
+            }
+          },
+          {
+            "id": "app-data-lakehouse-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Memcached",
+            "metrics": {
+              "sizeGB": 3004,
+              "p95ms": 9,
+              "connections": 56
+            }
+          },
+          {
+            "id": "app-data-lakehouse-ext",
+            "name": "Partner API",
+            "type": "external",
+            "tech": "Twilio",
+            "metrics": {
+              "p95ms": 239,
+              "availability": 98.8
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-data-lakehouse-fe",
+            "target": "app-data-lakehouse-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 58
+          },
+          {
+            "source": "app-data-lakehouse-gw",
+            "target": "app-data-lakehouse-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 160
+          },
+          {
+            "source": "app-data-lakehouse-gw",
+            "target": "app-data-lakehouse-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 336
+          },
+          {
+            "source": "app-data-lakehouse-svc0",
+            "target": "app-data-lakehouse-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 383
+          },
+          {
+            "source": "app-data-lakehouse-svc1",
+            "target": "app-data-lakehouse-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 344
+          },
+          {
+            "source": "app-data-lakehouse-svc1",
+            "target": "app-data-lakehouse-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 140
+          },
+          {
+            "source": "app-data-lakehouse-gw",
+            "target": "app-data-lakehouse-svc1",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 111
+          }
+        ]
+      }
+    },
+    {
+      "id": "app-devportal",
+      "name": "DevPortal",
+      "sectorId": "sec-platform",
+      "status": "healthy",
+      "owner": "D. Haddad",
+      "tech": [
+        "Kafka",
+        "Kong",
+        "SQS"
+      ],
+      "metrics": {
+        "uptime": 99.98,
+        "latencyMs": 266,
+        "rps": 2467,
+        "users": 98153,
+        "costPerMonth": 363168,
+        "incidents30d": 0,
+        "dataGB": 4652,
+        "apiCallsDay": 15190745
+      },
+      "architecture": {
+        "elements": [
+          {
+            "id": "app-devportal-fe",
+            "name": "Web Client",
+            "type": "frontend",
+            "tech": "Swift",
+            "metrics": {
+              "sessions": 428,
+              "p95ms": 175
+            }
+          },
+          {
+            "id": "app-devportal-gw",
+            "name": "API Gateway",
+            "type": "gateway",
+            "tech": "Apigee",
+            "metrics": {
+              "rps": 586,
+              "p95ms": 66
+            }
+          },
+          {
+            "id": "app-devportal-svc0",
+            "name": "Transaction Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 71,
+              "p95ms": 88,
+              "errorRate": 2.29,
+              "instances": 9
+            }
+          },
+          {
+            "id": "app-devportal-svc1",
+            "name": "Pricing Service",
+            "type": "service",
+            "tech": "Rust",
+            "metrics": {
+              "rps": 1321,
+              "p95ms": 123,
+              "errorRate": 2.27,
+              "instances": 11
+            }
+          },
+          {
+            "id": "app-devportal-svc2",
+            "name": "Profile Service",
+            "type": "service",
+            "tech": ".NET",
+            "metrics": {
+              "rps": 258,
+              "p95ms": 40,
+              "errorRate": 0.11,
+              "instances": 3
+            }
+          },
+          {
+            "id": "app-devportal-st0",
+            "name": "Primary DB",
+            "type": "database",
+            "tech": "MySQL",
+            "metrics": {
+              "sizeGB": 480,
+              "p95ms": 7,
+              "connections": 130
+            }
+          },
+          {
+            "id": "app-devportal-st1",
+            "name": "Cache",
+            "type": "cache",
+            "tech": "Hazelcast",
+            "metrics": {
+              "sizeGB": 1596,
+              "p95ms": 30,
+              "connections": 199
+            }
+          },
+          {
+            "id": "app-devportal-st2",
+            "name": "Event Bus",
+            "type": "queue",
+            "tech": "RabbitMQ",
+            "metrics": {
+              "sizeGB": 2857,
+              "p95ms": 35,
+              "connections": 224
+            }
+          },
+          {
+            "id": "app-devportal-ext",
+            "name": "Payment Network",
+            "type": "external",
+            "tech": "SAP",
+            "metrics": {
+              "p95ms": 561,
+              "availability": 99.42
+            }
+          }
+        ],
+        "relations": [
+          {
+            "source": "app-devportal-fe",
+            "target": "app-devportal-gw",
+            "type": "sync",
+            "label": "HTTPS",
+            "throughput": 738
+          },
+          {
+            "source": "app-devportal-gw",
+            "target": "app-devportal-svc0",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 84
+          },
+          {
+            "source": "app-devportal-gw",
+            "target": "app-devportal-svc1",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 438
+          },
+          {
+            "source": "app-devportal-gw",
+            "target": "app-devportal-svc2",
+            "type": "sync",
+            "label": "REST",
+            "throughput": 524
+          },
+          {
+            "source": "app-devportal-svc0",
+            "target": "app-devportal-st0",
+            "type": "data",
+            "label": "DATABASE",
+            "throughput": 148
+          },
+          {
+            "source": "app-devportal-svc1",
+            "target": "app-devportal-st1",
+            "type": "data",
+            "label": "CACHE",
+            "throughput": 770
+          },
+          {
+            "source": "app-devportal-svc2",
+            "target": "app-devportal-st2",
+            "type": "async",
+            "label": "QUEUE",
+            "throughput": 434
+          },
+          {
+            "source": "app-devportal-svc0",
+            "target": "app-devportal-ext",
+            "type": "sync",
+            "label": "Outbound",
+            "throughput": 181
+          },
+          {
+            "source": "app-devportal-gw",
+            "target": "app-devportal-svc1",
+            "type": "auth",
+            "label": "OAuth2",
+            "throughput": 32
+          }
+        ]
+      }
+    }
+  ]
+}

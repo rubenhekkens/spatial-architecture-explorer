@@ -1,0 +1,7 @@
+# local dev TLS cert + PRIVATE KEY — never publish
+.dev-certs/
+# editor/tooling
+.claude/
+__pycache__/
+*.pyc
+node_modules/

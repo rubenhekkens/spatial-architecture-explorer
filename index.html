@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Spatial Architecture Explorer</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #03050a;
+      font-family: "Segoe UI", system-ui, sans-serif; color: #cfeffb; }
+    #renderCanvas { width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+
+    /* Boot / loading overlay */
+    #boot { position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px; z-index: 30;
+      background: radial-gradient(ellipse at center, #061121 0%, #03050a 70%); }
+    #boot h1 { margin: 0; font-weight: 300; letter-spacing: .5em; font-size: 22px;
+      text-transform: uppercase; color: #7fe9ff; text-shadow: 0 0 18px #00e5ff88; }
+    #boot .sub { font-size: 12px; letter-spacing: .35em; color: #4a90a8; text-transform: uppercase; }
+    #boot .ring { width: 64px; height: 64px; border-radius: 50%;
+      border: 2px solid #0a2a3a; border-top-color: #00e5ff; animation: spin 1s linear infinite;
+      box-shadow: 0 0 24px #00e5ff55; }
+    #boot.err .ring { display: none; }
+    #boot .msg { font-size: 12px; color: #6fb7cc; max-width: 520px; text-align: center; line-height: 1.6; }
+    #boot.err .msg { color: #ff7b9c; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Corner HUD chrome (pure decoration, drawn over the canvas) */
+    .hud { position: fixed; pointer-events: none; z-index: 10; color: #2f6b80;
+      font-size: 10px; letter-spacing: .3em; text-transform: uppercase; }
+    .hud.tl { top: 14px; left: 16px; }
+    .hud.tr { top: 14px; right: 16px; text-align: right; }
+    .hud.bl { bottom: 14px; left: 16px; }
+    .corner { position: fixed; width: 26px; height: 26px; border: 1px solid #0d4254; z-index: 10; pointer-events: none; }
+    .corner.tl { top: 8px; left: 8px; border-right: 0; border-bottom: 0; }
+    .corner.tr { top: 8px; right: 8px; border-left: 0; border-bottom: 0; }
+    .corner.bl { bottom: 8px; left: 8px; border-right: 0; border-top: 0; }
+    .corner.br { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
+  </style>
+</head>
+<body>
+  <canvas id="renderCanvas"></canvas>
+
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
+  <div class="hud tl">J.A.R.V.I.S · Spatial Architecture</div>
+  <div class="hud tr" id="hudStatus">SYS · ONLINE</div>
+  <div class="hud bl">Drag to orbit · Scroll to zoom · Click blocks &amp; panels</div>
+
+  <div id="boot">
+    <h1>Initialising</h1>
+    <div class="ring"></div>
+    <div class="sub">Spatial Architecture Explorer</div>
+    <div class="msg" id="bootMsg">Loading holographic engine…</div>
+  </div>
+
+  <!-- Babylon.js (UMD via CDN) -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+
+  <!-- App modules (classic scripts, dependency order) -->
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/graph3d.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
