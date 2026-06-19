@@ -1,5 +1,8 @@
 # Spatial Architecture Explorer
 
+**▶ Live demo: https://rubenhekkens.github.io/spatial-architecture-explorer/**
+(open it in a desktop browser, or in the **Meta Quest Browser** and tap *Enter VR*).
+
 A WebXR "Jarvis / Minority Report" interface for exploring IT-architecture —
 sectors, applications, and the 3D architecture elements and data relations
 between them. Runs in a desktop/mobile browser **and** on the Meta Quest in VR.
@@ -22,12 +25,15 @@ python -m http.server 8080
 Then open **http://localhost:8080**.
 
 ### In VR on Meta Quest
-1. Serve the folder on your PC so it's reachable on your LAN (https is required
-   by some headsets — a tunnel like `cloudflared`/`ngrok` gives an https URL).
-2. Open that URL in the **Quest Browser**.
-3. Tap **Enter VR** (bottom-right). Use **hand tracking** (pinch/poke the
-   panels and blocks) or controllers. Point at panels to click; teleport on
-   the grid floor.
+Easiest: open the **live demo URL** above in the **Quest Browser** and tap
+**Enter VR** (bottom-right). WebXR needs https — the GitHub Pages URL provides it.
+
+Use **hand tracking** (pinch/poke the panels and blocks) or controllers. Point
+at panels to click; teleport on the grid floor.
+
+Local alternative (no internet): run `serve-quest.cmd` for a self-signed-https
+LAN server, or use `adb reverse tcp:8080 tcp:8080` over USB and open
+`http://localhost:8080` on the headset.
 
 ## The four pages (from `Pages.xlsx`)
 - **Landing** – aggregate stats of all applications; sectors float as glowing
