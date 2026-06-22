@@ -154,10 +154,14 @@ GUI panels stay fixed so controls remain reachable.
 - `scene.createDefaultXRExperienceAsync({ floorMeshes: [grid] })`.
 - Enable features when available: **hand tracking**, **pointer selection**,
   **near interaction**.
-- **Browsing** is by **zoom + rotate**, not teleport: a small head-pinned
-  console (built in `setupLocomotion`) has ZOOM ±, ROTATE ↺↻ and RESET buttons
-  that scale/rotate `App.stage` (the 3D content) so the user can inspect the
-  interface from any distance/angle without walking. Pinchable with hands.
+- **Browsing** is by **multi-touch-style gestures** (no menu), built in
+  `setupGestureControl`, which transform `App.stage` (all 3D content):
+  - two hands pinched → spread/pinch to **zoom**, twist to **rotate**, move to **pan**;
+  - one hand pinched → grab to **pan**.
+  Mirrors trackpad/touch pinch-zoom-rotate. Uses hand-tracking joint positions
+  (thumb–index pinch, with hysteresis); a controller squeeze is the fallback
+  "pinch". Navigation resets the stage transform so each page starts framed.
+  Desktop/mobile browsers keep the `ArcRotateCamera` (drag-orbit, wheel/pinch zoom).
 - Desktop fallback: `ArcRotateCamera` with mouse orbit/zoom; the same GUI is
   driven by the mouse pointer.
 - Capability detection (`navigator.xr.isSessionSupported`) toggles the Enter-VR

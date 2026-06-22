@@ -27,6 +27,8 @@
   function clearStage() {
     if (Pages._cmp && Pages._cmp.cleanup) { Pages._cmp.cleanup(); }
     Pages._cmp = null;
+    // reset any VR gesture zoom/rotate/pan so each page starts framed
+    if (App.stage) { App.stage.scaling.setAll(1); App.stage.rotation.set(0, 0, 0); App.stage.position.set(0, 0, 0); }
     Pages._graphs.forEach((g) => g.dispose());
     Pages._graphs = [];
     Pages._transient.forEach((m) => { try { m.dispose(); } catch (e) {} });

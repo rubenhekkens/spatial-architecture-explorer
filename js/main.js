@@ -113,8 +113,9 @@
       const fm = xr.baseExperience.featuresManager;
 
       // hand tracking (Quest)
+      let handTracking = null;
       try {
-        fm.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
+        handTracking = fm.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
           xrInput: xr.input,
           jointMeshes: { enablePhysics: false },
         });
@@ -125,8 +126,8 @@
         fm.enableFeature(BABYLON.WebXRFeatureName.NEAR_INTERACTION, "latest", { xrInput: xr.input });
       } catch (e) { console.warn("Near interaction unavailable:", e.message); }
 
-      // hand-friendly browsing: a wrist console to zoom + rotate the interface
-      setupLocomotion(xr, scene);
+      // browse the interface with two-handed pinch gestures (no menu)
+      setupGestureControl(xr, scene, handTracking);
 
       hudStatus.textContent = "SYS · VR READY";
     } catch (e) {
@@ -135,66 +136,97 @@
     }
   }
 
-  // Hand-friendly browsing for VR. A small console pinned in front of the user
-  // zooms (scales) and rotates the whole 3D stage (App.stage) so they can
-  // inspect the interface from any angle/distance without walking. Pinchable
-  // with hand tracking; also works with controller pointers.
-  function setupLocomotion(xr, scene) {
+  // Browse the interface in VR with multi-touch-style gestures (no menu):
+  //   • two hands pinched  -> spread/pinch to ZOOM, twist to ROTATE, move to PAN
+  //   • one hand pinched   -> grab to PAN the whole hologram
+  // Mirrors trackpad/touch pinch-zoom-rotate. Works with hand tracking; a
+  // controller squeeze is used as a fallback "pinch" when hands aren't tracked.
+  function setupGestureControl(xr, scene, handTracking) {
     const cam = xr.baseExperience.camera;
-    const START = new BABYLON.Vector3(0, 0, 3.4);   // comfortable VR start spot
     const stage = App.stage;
+    const V = BABYLON.Vector3;
+    const START = new V(0, 0, 3.4);
+    const PINCH_ON = 0.03, PINCH_OFF = 0.05;   // hysteresis on thumb–index distance
 
-    const clampScale = (s) => Math.max(0.35, Math.min(4, s));
-    App.stageZoom = (factor) => {
-      if (!stage) return;
-      const s = clampScale(stage.scaling.x * factor);
-      stage.scaling.setAll(s);
+    const J = BABYLON.WebXRHandJoint || {};
+    const THUMB = J.THUMB_TIP !== undefined ? J.THUMB_TIP : 4;
+    const INDEX = J.INDEX_FINGER_TIP !== undefined ? J.INDEX_FINGER_TIP : 9;
+
+    App.stageReset = () => {
+      if (stage) { stage.scaling.setAll(1); stage.rotation.set(0, 0, 0); stage.position.set(0, 0, 0); }
+      cam.position.copyFrom(START);
     };
-    App.stageRotate = (rad) => { if (stage) stage.rotation.y += rad; };
-    App.stageReset = () => { if (stage) { stage.scaling.setAll(1); stage.rotation.set(0, 0, 0); } cam.position.copyFrom(START); };
 
-    // --- wrist console (GUI plane parented to the head) ---
-    const plane = BABYLON.MeshBuilder.CreatePlane("vrnav", { width: 0.52, height: 0.17 }, scene);
-    plane.parent = cam;
-    plane.position = new BABYLON.Vector3(0, -0.34, 0.7); // low and in front
-    plane.rotation.x = BABYLON.Tools.ToRadians(38);
-    plane.isVisible = false;
-    plane.renderingGroupId = 1; // draw on top
+    // --- controller squeeze fallback (one entry per controller) ---
+    const ctrlGrabs = [];
+    if (xr.input && xr.input.onControllerAddedObservable) {
+      xr.input.onControllerAddedObservable.add((ctrl) => {
+        const g = { pressed: false, ctrl };
+        ctrl.onMotionControllerInitObservable.add((mc) => {
+          const sq = mc.getComponentOfType && (mc.getComponentOfType("squeeze") || mc.getComponentOfType("grip"));
+          if (sq) sq.onButtonStateChangedObservable.add(() => (g.pressed = sq.pressed));
+        });
+        g.pos = () => {
+          if (!g.pressed) return null;
+          const n = ctrl.grip || ctrl.pointer;
+          return n ? n.getAbsolutePosition().clone() : null;
+        };
+        ctrlGrabs.push(g);
+      });
+    }
 
-    const adt = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(plane, 1040, 340, false);
-    const bg = new BABYLON.GUI.Rectangle();
-    bg.thickness = 2; bg.cornerRadius = 22; bg.color = "#1ea7c9"; bg.background = "#06131fdd";
-    adt.addControl(bg);
-    const title = new BABYLON.GUI.TextBlock();
-    title.text = "ZOOM · ROTATE"; title.color = "#7fe9ff"; title.fontSize = 32;
-    title.top = "-128px"; title.shadowColor = "#00e5ff"; title.shadowBlur = 14;
-    bg.addControl(title);
+    // pinch point for a hand, or null when not pinching (with hysteresis)
+    const pinchState = { left: false, right: false };
+    function handPinch(handedness) {
+      if (!handTracking || !handTracking.getHandByHandedness) return null;
+      const hand = handTracking.getHandByHandedness(handedness);
+      if (!hand || !hand.getJointMesh) return null;
+      const tt = hand.getJointMesh(THUMB), it = hand.getJointMesh(INDEX);
+      if (!tt || !it) return null;
+      const a = tt.getAbsolutePosition(), b = it.getAbsolutePosition();
+      const d = V.Distance(a, b);
+      if (pinchState[handedness]) { if (d > PINCH_OFF) pinchState[handedness] = false; }
+      else { if (d < PINCH_ON) pinchState[handedness] = true; }
+      return pinchState[handedness] ? V.Center(a, b) : null;
+    }
 
-    const row = new BABYLON.GUI.StackPanel();
-    row.isVertical = false; row.height = "170px"; row.top = "24px";
-    bg.addControl(row);
+    const clampScale = (s) => Math.max(0.3, Math.min(4.5, s));
+    let prev = [];
 
-    const mkBtn = (label, color, fn) => {
-      const b = BABYLON.GUI.Button.CreateSimpleButton("b", label);
-      b.width = "190px"; b.height = "150px"; b.thickness = 2; b.cornerRadius = 16;
-      b.color = color; b.background = "#06131f"; b.paddingLeft = "8px"; b.paddingRight = "8px";
-      if (b.textBlock) { b.textBlock.color = color; b.textBlock.fontSize = 40; }
-      b.onPointerEnterObservable.add(() => { b.background = color; if (b.textBlock) b.textBlock.color = "#03121a"; });
-      b.onPointerOutObservable.add(() => { b.background = "#06131f"; if (b.textBlock) b.textBlock.color = color; });
-      b.onPointerUpObservable.add(fn);
-      row.addControl(b);
-      return b;
-    };
-    mkBtn("↺", "#7fe9ff", () => App.stageRotate(-Math.PI / 12));
-    mkBtn("ZOOM −", "#9b8cff", () => App.stageZoom(1 / 1.18));
-    mkBtn("RESET", "#ffd166", () => App.stageReset());
-    mkBtn("ZOOM +", "#36f1cd", () => App.stageZoom(1.18));
-    mkBtn("↻", "#7fe9ff", () => App.stageRotate(Math.PI / 12));
+    scene.onBeforeRenderObservable.add(() => {
+      if (!stage || xr.baseExperience.state !== BABYLON.WebXRState.IN_XR) { prev = []; return; }
 
-    // show only while immersed; place the user well on entry
+      // collect up to two active grab points (hands first, controllers as backfill)
+      const pts = [];
+      const lh = handPinch("left"); if (lh) pts.push(lh);
+      const rh = handPinch("right"); if (rh) pts.push(rh);
+      for (const g of ctrlGrabs) { if (pts.length >= 2) break; const p = g.pos(); if (p) pts.push(p); }
+
+      if (pts.length >= 2 && prev.length >= 2) {
+        const [a, b] = pts, [pa, pb] = prev;
+        const d = V.Distance(a, b), pd = V.Distance(pa, pb);
+        if (pd > 1e-3) stage.scaling.setAll(clampScale(stage.scaling.x * (d / pd)));   // ZOOM
+        if (d > 0.05 && pd > 0.05) {                                                   // ROTATE (twist)
+          stage.rotation.y += Math.atan2(b.z - a.z, b.x - a.x) - Math.atan2(pb.z - pa.z, pb.x - pa.x);
+        }
+        const mid = V.Center(a, b), pmid = V.Center(pa, pb);                           // PAN
+        stage.position.addInPlace(mid.subtract(pmid));
+        clampStagePos(stage);
+      } else if (pts.length === 1 && prev.length === 1) {
+        stage.position.addInPlace(pts[0].subtract(prev[0]));                           // grab-pan
+        clampStagePos(stage);
+      }
+      prev = pts;
+    });
+
+    function clampStagePos(s) {
+      const max = 6;
+      if (s.position.length() > max) s.position.scaleInPlace(max / s.position.length());
+    }
+
+    // reset framing each time the user enters VR
     xr.baseExperience.onStateChangedObservable.add((state) => {
-      if (state === BABYLON.WebXRState.IN_XR) { App.stageReset(); plane.isVisible = true; }
-      else if (state === BABYLON.WebXRState.NOT_IN_XR) { plane.isVisible = false; }
+      if (state === BABYLON.WebXRState.IN_XR) App.stageReset();
     });
   }
 
